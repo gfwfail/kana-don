@@ -2,8 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { kanaGroups, getRandomKana } from './kanaUtils';
 
 const KanaChecker = () => {
-    const [selectedTypes, setSelectedTypes] = useState(['hiragana', 'katakana']);
-    const [selectedGroups, setSelectedGroups] = useState(Object.keys(kanaGroups.hiragana));
+    const [selectedTypes, setSelectedTypes] = useState(
+        JSON.parse(localStorage.getItem('selectedTypes')) || ['hiragana', 'katakana']
+    );
+    const [selectedGroups, setSelectedGroups] = useState(
+        JSON.parse(localStorage.getItem('selectedGroups')) || Object.keys(kanaGroups.hiragana)
+    );
     const [kanaData, setKanaData] = useState(null);
     const [input, setInput] = useState('');
     const [isCorrect, setIsCorrect] = useState(null);
@@ -19,6 +23,14 @@ const KanaChecker = () => {
             setKanaData(null);
         }
     }, [selectedTypes, selectedGroups]);
+
+    useEffect(() => {
+        localStorage.setItem('selectedTypes', JSON.stringify(selectedTypes));
+    }, [selectedTypes]);
+
+    useEffect(() => {
+        localStorage.setItem('selectedGroups', JSON.stringify(selectedGroups));
+    }, [selectedGroups]);
 
     const handleChange = (e) => {
         const cleanedInput = e.target.value.replace(/[^a-zA-Z]/g, '');
