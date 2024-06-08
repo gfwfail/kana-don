@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { kanaGroups, getRandomKana } from './kanaUtils';
 
 const KanaChecker = () => {
@@ -15,6 +15,7 @@ const KanaChecker = () => {
     const [correctCount, setCorrectCount] = useState(0);
     const [incorrectCount, setIncorrectCount] = useState(0);
     const [isAnswered, setIsAnswered] = useState(false);
+    const inputRef = useRef(null);
 
     useEffect(() => {
         if (selectedTypes.length > 0 && selectedGroups.length > 0) {
@@ -31,6 +32,12 @@ const KanaChecker = () => {
     useEffect(() => {
         localStorage.setItem('selectedGroups', JSON.stringify(selectedGroups));
     }, [selectedGroups]);
+
+    useEffect(() => {
+        if (inputRef.current) {
+            inputRef.current.focus();
+        }
+    });
 
     const handleChange = (e) => {
         const cleanedInput = e.target.value.replace(/[^a-zA-Z]/g, '');
@@ -61,6 +68,9 @@ const KanaChecker = () => {
         setIsCorrect(null);
         setShowAnswer(false);
         setIsAnswered(false);
+        if (inputRef.current) {
+            inputRef.current.focus();
+        }
     };
 
     const handleGroupChange = (e) => {
@@ -118,6 +128,7 @@ const KanaChecker = () => {
                 onChange={handleChange}
                 onKeyPress={handleKeyPress}
                 disabled={isAnswered || !kanaData}
+                ref={inputRef}
                 className={`border-2 p-2 mb-4 w-full max-w-xs text-center text-xl ${isCorrect === null ? 'border-gray-300' : isCorrect ? 'border-green-500' : 'border-red-500'} rounded-md`}
             />
             {isCorrect === false && <div className="text-red-500 mb-2">Incorrect, try again!</div>}
