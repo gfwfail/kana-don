@@ -149,12 +149,6 @@ const KanaChecker = () => {
             </div>
             <div className="flex items-center mb-6">
                 <div className="text-5xl font-bold text-gray-700">{kanaData ? kanaData.kana : '-'}</div>
-                <button
-                    onClick={toggleShowAnswer}
-                    className="ml-4 p-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 transition duration-300"
-                >
-                    {showAnswer ? 'Hide Answer' : 'Show Answer'}
-                </button>
                 {kanaData && (
                     <button
                         onClick={playAudio}
@@ -163,12 +157,20 @@ const KanaChecker = () => {
                         🔊
                     </button>
                 )}
+                
+                <button
+                    onClick={toggleShowAnswer}
+                    className="ml-4 p-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 transition duration-300"
+                >
+                    💡
+                </button>
+
                 {kanaData && (
                     <audio ref={audioRef} src={require(`./audio/${kanaData.romaji}.mp3`)}/>
                 )}
             </div>
-            {showAnswer && kanaData && (
-                <div className="text-xl mb-4 text-gray-900 font-bold">
+            {kanaData && (
+                <div className={`text-xl mb-4 text-gray-900 font-bold ${showAnswer ? 'visible' : 'invisible'}`}>
                     {kanaData.romaji}
                 </div>
             )}
