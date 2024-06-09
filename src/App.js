@@ -14,11 +14,17 @@ const useLocalStorageState = (key, defaultValue) => {
     return [state, setState];
 };
 
-// Utility functions
-const initializeKanaData = (selectedTypes, selectedGroups) => {
+
+const initializeKanaData = (selectedTypes, selectedGroups, kanaData = null) => {
     if (selectedTypes.length > 0 && selectedGroups.length > 0) {
-        return getRandomKana(selectedTypes, selectedGroups);
+        let newKana = getRandomKana(selectedTypes, selectedGroups);
+        while (newKana === kanaData) {
+            console.log('initializeKanaData - Duplicate Kana:', newKana); // Debug log
+            newKana = getRandomKana(selectedTypes, selectedGroups);
+        }
+        return newKana;
     }
+
     return null;
 };
 
@@ -56,19 +62,18 @@ const KanaChecker = () => {
     const inputRef = useRef(input); // Ref to track current input state
     const audioRef = useRef(null); // Ref for audio element
 
-    useEffect(() => {
-        setKanaData(initializeKanaData(selectedTypes, selectedGroups));
-    }, [selectedTypes, selectedGroups]);
 
     useEffect(() => {
         if (inputRefs.current[0]) {
             inputRefs.current[0].focus();
         }
+        console.log(kanaData)
     }, [kanaData]);
 
     useEffect(() => {
         const handleGlobalKeyDown = (e) => {
             if (e.key === 'Enter') {
+                console.log(kanaData)
                 if (result === null) {
                     handleSubmit();
                 } else {
@@ -110,7 +115,7 @@ const KanaChecker = () => {
     };
 
     const handleNewKana = () => {
-        setKanaData(initializeKanaData(selectedTypes, selectedGroups));
+        setKanaData(initializeKanaData(selectedTypes, selectedGroups, kanaData));
         setInput(['', '', '']);
         inputRef.current = ['', '', '']; // Reset the ref
         setResult(null);
