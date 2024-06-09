@@ -1,7 +1,6 @@
 import React, {useState, useEffect, useRef} from 'react';
 import {kanaGroups, getRandomKana} from './kanaUtils';
 
-// Custom hook for local storage state
 const useLocalStorageState = (key, defaultValue) => {
     const [state, setState] = useState(() => {
         const storedValue = localStorage.getItem(key);
@@ -55,6 +54,7 @@ const KanaChecker = () => {
     const [incorrectList, setIncorrectList] = useState([]);
     const inputRefs = useRef([]);
     const inputRef = useRef(input); // Ref to track current input state
+    const audioRef = useRef(null); // Ref for audio element
 
     useEffect(() => {
         setKanaData(initializeKanaData(selectedTypes, selectedGroups));
@@ -126,6 +126,12 @@ const KanaChecker = () => {
         setStateFunction((prev) => (prev.includes(value) ? prev.filter((item) => item !== value) : [...prev, value]));
     };
 
+    const playAudio = () => {
+        if (audioRef.current) {
+            audioRef.current.play();
+        }
+    };
+
     return (
         <div
             className="flex flex-col items-center p-6 bg-white shadow-md rounded-lg max-w-lg mx-auto mt-10 border border-gray-300">
@@ -137,6 +143,17 @@ const KanaChecker = () => {
                 >
                     {showAnswer ? 'Hide Answer' : 'Show Answer'}
                 </button>
+                {kanaData && (
+                    <button
+                        onClick={playAudio}
+                        className="ml-2 p-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 transition duration-300"
+                    >
+                        🔊
+                    </button>
+                )}
+                {kanaData && (
+                    <audio ref={audioRef} src={require(`./audio/${kanaData.romaji}.mp3`)}/>
+                )}
             </div>
             {showAnswer && kanaData && (
                 <div className="text-lg mb-4 text-gray-700">
