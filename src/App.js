@@ -40,14 +40,6 @@ const handleInputChange = (e, index, input, setInput, inputRefs, inputRef) => {
         inputRefs.current[index + 1].focus();
     }
 };
-
-const handleKeyDownInput = (e, index, input, inputRefs) => {
-    if (e.key === 'Backspace' && !input[index] && index > 0) {
-        inputRefs.current[index - 1].focus();
-    }
-    e.key !== 'Enter' && e.stopPropagation()
-};
-
 // Main Component
 const KanaChecker = () => {
     const [selectedTypes, setSelectedTypes] = useLocalStorageState('selectedTypes', ['hiragana', 'katakana']);
@@ -63,6 +55,15 @@ const KanaChecker = () => {
     const inputRef = useRef(input); // Ref to track current input state
     const audioRef = useRef(null); // Ref for audio element
 
+
+    const handleKeyDownInput = (e, index, input, inputRefs) => {
+        if (e.key === 'Backspace' && !input[index] && index > 0) {
+            inputRefs.current[index - 1].focus();
+        }
+        e.key === '1' && audioRef.current.play()
+        e.key === '2' && setShowAnswer((prev) => !prev)
+        e.key !== 'Enter' && e.stopPropagation()
+    };
 
     useEffect(() => {
         if (inputRefs.current[0]) {
@@ -143,6 +144,9 @@ const KanaChecker = () => {
     return (
         <div
             className="flex flex-col items-center p-6 bg-white shadow-md rounded-lg max-w-lg mx-auto mt-10 border border-gray-300">
+            <div className="mb-4 text-center">
+                <p className="text-gray-700">按1键播放声音 按2键查看答案 Enter提交答案</p>
+            </div>
             <div className="flex items-center mb-6">
                 <div className="text-5xl font-bold text-gray-700">{kanaData ? kanaData.kana : '-'}</div>
                 <button
@@ -164,8 +168,8 @@ const KanaChecker = () => {
                 )}
             </div>
             {showAnswer && kanaData && (
-                <div className="text-lg mb-4 text-gray-700">
-                    Answer: {kanaData.romaji}
+                <div className="text-xl mb-4 text-gray-900 font-bold">
+                    {kanaData.romaji}
                 </div>
             )}
             <div className="flex space-x-2 mb-4">
