@@ -52,6 +52,7 @@ const KanaChecker = () => {
     const [showAnswer, setShowAnswer] = useState(false);
     const [correctCount, setCorrectCount] = useState(0);
     const [incorrectCount, setIncorrectCount] = useState(0);
+    const [incorrectList, setIncorrectList] = useState([]);
     const inputRefs = useRef([]);
     const inputRef = useRef(input); // Ref to track current input state
 
@@ -99,6 +100,10 @@ const KanaChecker = () => {
                 setCorrectCount((prev) => prev + 1);
             } else {
                 setIncorrectCount((prev) => prev + 1);
+                setIncorrectList((prev) => [
+                    ...prev,
+                    {kana: kanaData.kana, userInput: userInput, correctAnswer: kanaData.romaji}
+                ]);
                 setShowAnswer(true);
             }
         }
@@ -208,12 +213,30 @@ const KanaChecker = () => {
                     ))}
                 </div>
             </div>
+
             <div className="mt-4">
                 <strong className="text-gray-700">Statistics:</strong>
                 <div className="flex space-x-4 mt-2">
                     <div className="text-green-500">Correct: {correctCount}</div>
                     <div className="text-red-500">Incorrect: {incorrectCount}</div>
                 </div>
+            </div>
+
+            <div className="mt-4 w-full">
+                <strong className="text-gray-700">Incorrect Attempts:</strong>
+                {incorrectList.length > 0 ? (
+                    <ul className="mt-2">
+                        {incorrectList.map((item, index) => (
+                            <li key={index} className="flex justify-between mb-2 p-2 bg-gray-100 rounded-md">
+                                <span className="text-gray-700">Kana: {item.kana}</span>
+                                <span className="text-red-500">Your Input: {item.userInput}</span>
+                                <span className="text-green-500">Correct Answer: {item.correctAnswer}</span>
+                            </li>
+                        ))}
+                    </ul>
+                ) : (
+                    <div className="text-gray-500 mt-2">No incorrect attempts yet.</div>
+                )}
             </div>
         </div>
     );
