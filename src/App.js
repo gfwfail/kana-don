@@ -57,7 +57,7 @@ const KanaChecker = () => {
     const [showAnswer, setShowAnswer] = useState(false);
     const [correctCount, setCorrectCount] = useState(0);
     const [incorrectCount, setIncorrectCount] = useState(0);
-    const [incorrectList, setIncorrectList] = useState([]);
+    const [incorrectList, setIncorrectList] = useLocalStorageState('incorrectList', []);
     const inputRefs = useRef([]);
     const inputRef = useRef(input); // Ref to track current input state
     const audioRef = useRef(null); // Ref for audio element
@@ -247,15 +247,22 @@ const KanaChecker = () => {
             <div className="mt-4 w-full">
                 <strong className="text-gray-700">Incorrect Attempts:</strong>
                 {incorrectList.length > 0 ? (
-                    <ul className="mt-2">
-                        {incorrectList.map((item, index) => (
-                            <li key={index} className="flex justify-between mb-2 p-2 bg-gray-100 rounded-md">
-                                <span className="text-gray-700">Kana: {item.kana}</span>
-                                <span className="text-red-500">Your Input: {item.userInput}</span>
-                                <span className="text-green-500">Correct Answer: {item.correctAnswer}</span>
-                            </li>
-                        ))}
-                    </ul>
+                    <div>
+                        <button
+                            onClick={() => setIncorrectList([])}
+                            className="btn-link">
+                            Clear List
+                        </button>
+                        <ul className="mt-2">
+                            {incorrectList.map((item, index) => (
+                                <li key={index} className="flex justify-between mb-2 p-2 bg-gray-100 rounded-md">
+                                    <span className="text-gray-700">Kana: {item.kana}</span>
+                                    <span className="text-red-500">Your Input: {item.userInput}</span>
+                                    <span className="text-green-500">Correct Answer: {item.correctAnswer}</span>
+                                </li>
+                            ))}
+                        </ul>
+                    </div>
                 ) : (
                     <div className="text-gray-500 mt-2">No incorrect attempts yet.</div>
                 )}
