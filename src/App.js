@@ -45,6 +45,7 @@ const handleKeyDownInput = (e, index, input, inputRefs) => {
     if (e.key === 'Backspace' && !input[index] && index > 0) {
         inputRefs.current[index - 1].focus();
     }
+    e.key !== 'Enter' && e.stopPropagation()
 };
 
 // Main Component
@@ -79,6 +80,8 @@ const KanaChecker = () => {
                 } else {
                     handleNewKana();
                 }
+            } else {
+                inputRefs.current[0].focus()
             }
         };
 
@@ -177,7 +180,7 @@ const KanaChecker = () => {
                         ref={(el) => (inputRefs.current[index] = el)}
                         maxLength={1}
                         className={`w-12 p-2 text-center text-xl border-2 rounded-md transition duration-300 
-                        ${result !==null && index >= kanaData.romaji.length ? 'bg-gray-200 opacity-40 border-dashed' :''}
+                        ${result !== null && index >= kanaData.romaji.length ? 'bg-gray-200 opacity-40 border-dashed' : ''}
                         ${
                             result === null ? 'border-gray-300' : result ? 'border-green-500' : 'border-red-500'
                         }`}
