@@ -176,7 +176,9 @@ const KanaChecker = () => {
                         disabled={result !== null || !kanaData}
                         ref={(el) => (inputRefs.current[index] = el)}
                         maxLength={1}
-                        className={`w-12 p-2 text-center text-xl border-2 rounded-md transition duration-300 ${
+                        className={`w-12 p-2 text-center text-xl border-2 rounded-md transition duration-300 
+                        ${result !==null && index >= kanaData.romaji.length ? 'bg-gray-200 opacity-40 border-dashed' :''}
+                        ${
                             result === null ? 'border-gray-300' : result ? 'border-green-500' : 'border-red-500'
                         }`}
                     />
