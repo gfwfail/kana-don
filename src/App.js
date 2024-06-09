@@ -45,7 +45,13 @@ const KanaChecker = () => {
     };
 
     const handleKeyPress = (e) => {
-        if (e.key === 'Enter' && !isAnswered && kanaData) {
+        if (e.key === 'Enter' && input && !isAnswered && kanaData) {
+            handleSubmit();
+        }
+    };
+
+    const handleSubmit = () => {
+        if (!isAnswered && kanaData) {
             const cleanedInput = input.replace(/[^a-zA-Z]/g, '');
             if (cleanedInput.toLowerCase() === kanaData.romaji) {
                 setIsCorrect(true);
@@ -107,12 +113,12 @@ const KanaChecker = () => {
     }, [isCorrect]);
 
     return (
-        <div className="flex flex-col items-center p-4 bg-white shadow-md rounded-md max-w-lg mx-auto mt-10">
-            <div className="flex items-center mb-4">
-                <div className="text-4xl font-bold">{kanaData ? kanaData.kana : '-'}</div>
+        <div className="flex flex-col items-center p-6 bg-white shadow-md rounded-lg max-w-lg mx-auto mt-10 border border-gray-300">
+            <div className="flex items-center mb-6">
+                <div className="text-5xl font-bold text-gray-700">{kanaData ? kanaData.kana : '-'}</div>
                 <button
                     onClick={toggleShowAnswer}
-                    className="ml-4 p-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300"
+                    className="ml-4 p-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 transition duration-300"
                 >
                     {showAnswer ? 'Hide Answer' : 'Show Answer'}
                 </button>
@@ -122,28 +128,44 @@ const KanaChecker = () => {
                     Answer: {kanaData.romaji}
                 </div>
             )}
-            <input
-                type="text"
-                value={input}
-                onChange={handleChange}
-                onKeyPress={handleKeyPress}
-                disabled={isAnswered || !kanaData}
-                ref={inputRef}
-                className={`border-2 p-2 mb-4 w-full max-w-xs text-center text-xl ${isCorrect === null ? 'border-gray-300' : isCorrect ? 'border-green-500' : 'border-red-500'} rounded-md`}
-            />
+            <div className="relative w-full max-w-xs mb-4">
+                <input
+                    type="text"
+                    value={input}
+                    onChange={handleChange}
+                    onKeyPress={handleKeyPress}
+                    disabled={isAnswered || !kanaData}
+                    ref={inputRef}
+                    className={`border-2 p-2 w-full text-center text-xl rounded-md transition duration-300 ${
+                        isCorrect === null
+                            ? 'border-gray-300'
+                            : isCorrect
+                                ? 'border-green-500'
+                                : 'border-red-500'
+                    }`}
+                />
+                {input && (
+                    <button
+                        onClick={handleSubmit}
+                        className="absolute right-2 top-2 bg-blue-500 text-white p-1 rounded hover:bg-blue-600 transition duration-300"
+                    >
+                        OK
+                    </button>
+                )}
+            </div>
             {isCorrect === false && <div className="text-red-500 mb-2">Incorrect, try again!</div>}
             {isCorrect === true && <div className="text-green-500 mb-2">Correct! Press Space for new Kana</div>}
             <button
                 onClick={handleNewKana}
-                className="border-2 p-2 mb-4 bg-blue-500 text-white rounded-md hover:bg-blue-600"
+                className="border-2 p-2 mb-4 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition duration-300"
             >
                 New Kana
             </button>
             <div className="mb-4 w-full">
-                <strong>Choose Kana Types:</strong>
+                <strong className="text-gray-700">Choose Kana Types:</strong>
                 <div className="flex flex-wrap mt-2">
                     {['hiragana', 'katakana'].map(type => (
-                        <label key={type} className="flex items-center mr-4 mb-2">
+                        <label key={type} className="flex items-center mr-4 mb-2 text-gray-700">
                             <input
                                 type="checkbox"
                                 value={type}
@@ -151,16 +173,16 @@ const KanaChecker = () => {
                                 onChange={handleTypeChange}
                                 className="mr-2 h-5 w-5 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500"
                             />
-                            {type === 'hiragana' ? '平假名' : '片假名'}
+                            {type === 'hiragana' ? '平仮名' : '片仮名'}
                         </label>
                     ))}
                 </div>
             </div>
             <div className="mb-4 w-full">
-                <strong>Choose Kana Groups:</strong>
+                <strong className="text-gray-700">Choose Kana Groups:</strong>
                 <div className="flex flex-wrap mt-2">
                     {Object.keys(kanaGroups.hiragana).map(group => (
-                        <label key={group} className="flex items-center mr-4 mb-2">
+                        <label key={group} className="flex items-center mr-4 mb-2 text-gray-700">
                             <input
                                 type="checkbox"
                                 value={group}
@@ -175,7 +197,7 @@ const KanaChecker = () => {
                 </div>
             </div>
             <div className="mt-4">
-                <strong>Statistics:</strong>
+                <strong className="text-gray-700">Statistics:</strong>
                 <div className="flex space-x-4 mt-2">
                     <div className="text-green-500">Correct: {correctCount}</div>
                     <div className="text-red-500">Incorrect: {incorrectCount}</div>
