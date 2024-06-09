@@ -9,13 +9,13 @@ const KanaChecker = () => {
         JSON.parse(localStorage.getItem('selectedGroups')) || Object.keys(kanaGroups.hiragana)
     );
     const [kanaData, setKanaData] = useState(null);
-    const [input, setInput] = useState('');
+    const [input, setInput] = useState(['', '', '']); // 最多三个字母
     const [isCorrect, setIsCorrect] = useState(null);
     const [showAnswer, setShowAnswer] = useState(false);
     const [correctCount, setCorrectCount] = useState(0);
     const [incorrectCount, setIncorrectCount] = useState(0);
     const [isAnswered, setIsAnswered] = useState(false);
-    const inputRef = useRef(null);
+    const inputRefs = useRef([]);
 
     useEffect(() => {
         if (selectedTypes.length > 0 && selectedGroups.length > 0) {
@@ -34,31 +34,43 @@ const KanaChecker = () => {
     }, [selectedGroups]);
 
     useEffect(() => {
-        if (inputRef.current) {
-            inputRef.current.focus();
+        if (inputRefs.current[0]) {
+            inputRefs.current[0].focus();
         }
-    });
+    }, [kanaData]);
 
-    const handleChange = (e) => {
-        const cleanedInput = e.target.value.replace(/[^a-zA-Z]/g, '');
-        setInput(cleanedInput);
+    const handleChange = (e, index) => {
+        const value = e.target.value.replace(/[^a-zA-Z]/g, '');
+        if (value.length <= 1) {
+            const newInput = [...input];
+            newInput[index] = value;
+            setInput(newInput);
+
+            // 移动焦点到下一个输入框
+            if (value && index < input.length - 1) {
+                inputRefs.current[index + 1].focus();
+            }
+        }
     };
 
     const handleKeyPress = (e) => {
-        if (e.key === 'Enter' && input && !isAnswered && kanaData) {
+        if (e.key === 'Enter' && input.join('') && !isAnswered && kanaData) {
             handleSubmit();
+        } else if (e.key === 'Enter' && isAnswered) {
+            handleNewKana();
         }
     };
 
     const handleSubmit = () => {
         if (!isAnswered && kanaData) {
-            const cleanedInput = input.replace(/[^a-zA-Z]/g, '');
-            if (cleanedInput.toLowerCase() === kanaData.romaji) {
+            const userInput = input.join('').replace(/[^a-zA-Z]/g, '').toLowerCase();
+            if (userInput === kanaData.romaji) {
                 setIsCorrect(true);
                 setCorrectCount(prev => prev + 1);
             } else {
                 setIsCorrect(false);
                 setIncorrectCount(prev => prev + 1);
+                setShowAnswer(true); // 显示正确答案
             }
             setIsAnswered(true);
         }
@@ -70,12 +82,12 @@ const KanaChecker = () => {
         } else {
             setKanaData(null);
         }
-        setInput('');
+        setInput(['', '', '']);
         setIsCorrect(null);
         setShowAnswer(false);
         setIsAnswered(false);
-        if (inputRef.current) {
-            inputRef.current.focus();
+        if (inputRefs.current[0]) {
+            inputRefs.current[0].focus();
         }
     };
 
@@ -99,7 +111,7 @@ const KanaChecker = () => {
 
     useEffect(() => {
         const handleKeyDown = (e) => {
-            if (e.code === 'Space' && isCorrect) {
+            if (e.key === 'Enter' && isAnswered) {
                 e.preventDefault();
                 handleNewKana();
             }
@@ -110,7 +122,7 @@ const KanaChecker = () => {
         return () => {
             window.removeEventListener('keydown', handleKeyDown);
         };
-    }, [isCorrect]);
+    }, [isAnswered]);
 
     return (
         <div className="flex flex-col items-center p-6 bg-white shadow-md rounded-lg max-w-lg mx-auto mt-10 border border-gray-300">
@@ -128,39 +140,45 @@ const KanaChecker = () => {
                     Answer: {kanaData.romaji}
                 </div>
             )}
-            <div className="relative w-full max-w-xs mb-4">
-                <input
-                    type="text"
-                    value={input}
-                    onChange={handleChange}
-                    onKeyPress={handleKeyPress}
-                    disabled={isAnswered || !kanaData}
-                    ref={inputRef}
-                    className={`border-2 p-2 w-full text-center text-xl rounded-md transition duration-300 ${
-                        isCorrect === null
-                            ? 'border-gray-300'
-                            : isCorrect
-                                ? 'border-green-500'
-                                : 'border-red-500'
-                    }`}
-                />
-                {input && (
-                    <button
-                        onClick={handleSubmit}
-                        className="absolute right-2 top-2 bg-blue-500 text-white p-1 rounded hover:bg-blue-600 transition duration-300"
-                    >
-                        OK
-                    </button>
-                )}
+            <div className="flex space-x-2 mb-4">
+                {input.map((value, index) => (
+                    <input
+                        key={index}
+                        type="text"
+                        value={value}
+                        onChange={(e) => handleChange(e, index)}
+                        onKeyPress={handleKeyPress}
+                        disabled={isAnswered || !kanaData}
+                        ref={(el) => (inputRefs.current[index] = el)}
+                        maxLength={1}
+                        className={`w-12 p-2 text-center text-xl border-2 rounded-md transition duration-300 ${
+                            isCorrect === null
+                                ? 'border-gray-300'
+                                : isCorrect
+                                    ? 'border-green-500'
+                                    : 'border-red-500'
+                        }`}
+                    />
+                ))}
             </div>
+            {!isAnswered && input.join('') && (
+                <button
+                    onClick={handleSubmit}
+                    className="p-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition duration-300 mb-4"
+                >
+                    OK
+                </button>
+            )}
             {isCorrect === false && <div className="text-red-500 mb-2">Incorrect, try again!</div>}
-            {isCorrect === true && <div className="text-green-500 mb-2">Correct! Press Space for new Kana</div>}
-            <button
-                onClick={handleNewKana}
-                className="border-2 p-2 mb-4 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition duration-300"
-            >
-                New Kana
-            </button>
+            {isCorrect === true && <div className="text-green-500 mb-2">Correct! Press Enter for new Kana</div>}
+            {isAnswered && (
+                <button
+                    onClick={handleNewKana}
+                    className="border-2 p-2 mb-4 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition duration-300"
+                >
+                    New Kana
+                </button>
+            )}
             <div className="mb-4 w-full">
                 <strong className="text-gray-700">Choose Kana Types:</strong>
                 <div className="flex flex-wrap mt-2">
@@ -173,7 +191,7 @@ const KanaChecker = () => {
                                 onChange={handleTypeChange}
                                 className="mr-2 h-5 w-5 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500"
                             />
-                            {type === 'hiragana' ? '平仮名' : '片仮名'}
+                            {type === 'hiragana' ? '平假名' : '片假名'}
                         </label>
                     ))}
                 </div>
